@@ -1,5 +1,6 @@
 # Vaga certa
 ## Projeto Mobile 
+__Grupo: Gilberto Lima Gonçalves Ra:2372541.__  </br></br>
 ## Tema
 __O Projeto Vaga Certa tem como objetivo a criação de um APP Mobile que divulga vagas de emprego na região. De modo simplificado e objetivo tem o intuito de criar anuncios de vagas disponiveis para informar usuários interessados sobre a vaga, descrição, empresa, regime e modelo.__  </br></br>
 ## Protótipos das telas 
