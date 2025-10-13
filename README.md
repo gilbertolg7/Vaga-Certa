@@ -1,6 +1,7 @@
 # Vaga certa
-## Projeto Mobile 
-## Tema
+## Projeto Mobile Entregra 1
+__Grupo: Gilberto Lima Gonçalves Ra:2372541.
+## Tema__  </br></br>
 __O Projeto Vaga Certa tem como objetivo a criação de um APP Mobile que divulga vagas de emprego na região. De modo simplificado e objetivo tem o intuito de criar anuncios de vagas disponiveis para informar usuários interessados sobre a vaga, descrição, empresa, regime e modelo.__  </br></br>
 ## Protótipos das telas 
 ###  Fluxo de telas usuário
@@ -17,3 +18,8 @@ __O Projeto Vaga Certa tem como objetivo a criação de um APP Mobile que divulg
 ![](/images/Perfil%20Empresa.png)</br>
 ![](/images/Cdastro%20vaga%20PJ.png)</br>
 ![](/images/Minhas%20Vagas.png)</br>
+
+## Projeto Mobile Entregra 2
+## Implementação das telas sem regras de negocio, persistencia de dados e nem autenticação de usuários
+## Telas desenvolvidas com base nos protótipos realizando pequenas modificações 
+## Link de Apresentação: https://youtu.be/rldsJ8GP6K8
