@@ -7,7 +7,9 @@ import {
   TouchableOpacity,
   StyleSheet,
   StatusBar,
+  Alert,
 } from 'react-native';
+import api from '../services/api';
 
 const SignInScreen = ({ navigation }) => {
   const [email, setEmail] = useState('');
@@ -46,28 +48,24 @@ const SignInScreen = ({ navigation }) => {
           secureTextEntry={true} 
         />
 
-        <View style={styles.accountTypeContainer}>
-          <TouchableOpacity
-            style={[styles.accountTypeButton, accountType === 'candidate' && styles.accountTypeButtonActive]}
-            onPress={() => setAccountType('candidate')}
-          >
-            <Text style={[styles.accountTypeText, accountType === 'candidate' && styles.accountTypeTextActive]}>Usuário</Text>
-          </TouchableOpacity>
-          <TouchableOpacity
-            style={[styles.accountTypeButton, accountType === 'company' && styles.accountTypeButtonActive]}
-            onPress={() => setAccountType('company')}
-          >
-            <Text style={[styles.accountTypeText, accountType === 'company' && styles.accountTypeTextActive]}>Empresa</Text>
-          </TouchableOpacity>
-        </View>
+        
 
         <TouchableOpacity 
           style={styles.buttonPrimary}
-          onPress={() => {
-            if (accountType === 'company') {
-              navigation.reset({ index: 0, routes: [{ name: 'EmpresaApp' }] });
-            } else {
-              navigation.reset({ index: 0, routes: [{ name: 'MainApp' }] });
+          onPress={async () => {
+            try {
+              if (!email || !password) return Alert.alert('Preencha email e senha');
+              const res = await api.login(email, password);
+              await api.saveToken(res.token);
+              const role = res.profile?.role;
+              if (role === 'company') {
+                navigation.reset({ index: 0, routes: [{ name: 'EmpresaApp' }] });
+              } else {
+                navigation.reset({ index: 0, routes: [{ name: 'MainApp' }] });
+              }
+            } catch (err) {
+              const msg = err?.error || err?.message || 'Erro ao autenticar';
+              Alert.alert('Erro', String(msg));
             }
           }}
         >

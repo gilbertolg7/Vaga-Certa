@@ -3,48 +3,56 @@ import { SafeAreaView, View, Text, StyleSheet, ScrollView, Image } from 'react-n
 
 const DetalhesVagaScreen = ({ route }) => {
   const vaga = route?.params?.vaga || {};
+  const companyObj = vaga.company || vaga.Company || {};
+  const companyName =
+    vaga.empresa ||
+    vaga.nome ||
+    (companyObj && (companyObj.nome || companyObj.companyName || companyObj.name)) ||
+    'Empresa';
+
+  const companyDesc =
+    vaga.empresaDescricao ||
+    vaga.descricao ||
+    (companyObj && (companyObj.descricao || companyObj.description || companyObj.desc)) ||
+    '';
 
   return (
     <SafeAreaView style={styles.safeArea}>
       <ScrollView contentContainerStyle={styles.container}>
-        <Text style={styles.pageTitle}>{vaga.cargo || `Vaga ${vaga.empresa || ''}`}</Text>
+        <Text style={styles.pageTitle}>{vaga.titulo || vaga.title || vaga.cargo || `Vaga ${companyName}`}</Text>
 
         <View style={styles.companyRow}>
           <View style={styles.logoPlaceholder}>
-            {vaga.logo ? (
-              <Image source={{ uri: vaga.logo }} style={styles.logo} resizeMode="cover" />
+            {(vaga.logo || companyObj.logo) ? (
+              <Image source={{ uri: vaga.logo || companyObj.logo }} style={styles.logo} resizeMode="cover" />
             ) : (
               <Text style={styles.logoText}>🏬</Text>
             )}
           </View>
           <View style={{ flex: 1, marginLeft: 12 }}>
-            <Text style={styles.companyName}>{vaga.empresa || 'Empresa'}</Text>
-            {vaga.empresaDescricao ? (
-              <Text style={styles.companyDesc}>{vaga.empresaDescricao}</Text>
-            ) : null}
+            <Text style={styles.companyName}>{companyName}</Text>
+            {companyDesc ? <Text style={styles.companyDesc}>{companyDesc}</Text> : null}
           </View>
         </View>
 
         <Text style={styles.sectionTitle}>Informações:</Text>
         <View style={styles.infoBox}>
-          <Text style={styles.infoLine}>Vaga: {vaga.cargo || '-'}</Text>
-          {vaga.descricao ? <Text style={styles.infoLine}>Descrição: {vaga.descricao}</Text> : null}
-          <Text style={styles.infoLine}>Escala: {vaga.escala || '-'}</Text>
+          <Text style={styles.infoLine}>Vaga: {vaga.titulo || vaga.title || vaga.cargo || '-'}</Text>
+          {(vaga.descricao || vaga.description) ? <Text style={styles.infoLine}>Descrição: {vaga.descricao || vaga.description}</Text> : null}
+          <Text style={styles.infoLine}>Escala: {vaga.escala || vaga.scale || '-'}</Text>
           {vaga.horario ? <Text style={styles.infoLine}>Horário: {vaga.horario}</Text> : null}
-          <Text style={styles.infoLine}>Modelo: {vaga.modelo || '-'}</Text>
+          <Text style={styles.infoLine}>Modelo: {vaga.modelo || vaga.model || '-'}</Text>
           {vaga.localizacao ? <Text style={styles.infoLine}>Localização: {vaga.localizacao}</Text> : null}
           <Text style={styles.infoLine}>Regime: {vaga.regime || '-'}</Text>
-          {vaga.requisitos ? <Text style={styles.infoLine}>Requisitos: {vaga.requisitos}</Text> : null}
+          {(vaga.requisitos || vaga.requirements) ? <Text style={styles.infoLine}>Requisitos: {vaga.requisitos || vaga.requirements}</Text> : null}
         </View>
 
-        <Text style={styles.sectionTitle}>Empresa:</Text>
-        <Text style={styles.companyLongDesc}>
-          {vaga.empresaDescricao || 'Descrição da empresa não disponível. Sera adicionada com a implementação da persistencia de Dados.'}
-        </Text>
+        <Text style={styles.companyName}>{companyName}</Text>
+        <Text style={styles.companyLongDesc}>{companyDesc }</Text>
 
         <View style={styles.bigImageWrap}>
-          {vaga.logo ? (
-            <Image source={{ uri: vaga.logo }} style={styles.bigImage} resizeMode="cover" />
+          {(vaga.logo || companyObj.logo) ? (
+            <Image source={{ uri: vaga.logo || companyObj.logo }} style={styles.bigImage} resizeMode="cover" />
           ) : (
             <Image
               source={{ uri: 'https://img.freepik.com/vetores-premium/ilustracao-do-personagem-de-desenho-grafico-vetorial-da-empresa_516790-299.jpg' }}

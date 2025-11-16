@@ -1,20 +1,45 @@
 import React, { useEffect, useState } from 'react';
-import { SafeAreaView, View, Text, StyleSheet, ScrollView, TouchableOpacity, Alert } from 'react-native';
+import { SafeAreaView, View, Text, StyleSheet, ScrollView, TouchableOpacity, Alert, ActivityIndicator } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
-import { VAGAS_DISPONIVEIS } from './HomeScreen';
+import api from '../services/api';
+import VagaCard from '../components/VagaCard';
 
 const EmpresaVagasScreen = ({ route, navigation }) => {
-  const initial = route?.params?.vagas || (route?.params?.novaVaga ? [route.params.novaVaga] : []);
-  const autoPartsExamples = VAGAS_DISPONIVEIS.filter((v) => v.empresa === 'AutoParts').slice(0, 2);
-  const [vagas, setVagas] = useState(initial && initial.length ? initial : autoPartsExamples);
+  const [vagas, setVagas] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  const loadJobs = async () => {
+    setLoading(true);
+    try {
+      // Get company profile to obtain company id
+      const profileRes = await api.getProfile();
+      const companyId = profileRes.profile?.id;
+      if (!companyId) {
+        setVagas([]);
+        return;
+      }
+
+      const res = await api.getJobs({ companyId });
+      const jobs = res.jobs || [];
+      setVagas(jobs);
+    } catch (err) {
+      const msg = err?.error || err?.message || 'Erro ao buscar vagas';
+      Alert.alert('Erro', String(msg));
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    loadJobs();
+  }, []);
 
   useEffect(() => {
     const nova = route?.params?.novaVaga;
     if (nova) {
-      setVagas((prev) => {
-        if (prev.some((v) => v.id === nova.id)) return prev;
-        return [nova, ...prev];
-      });
+      // if nova has id from backend, prepend; otherwise reload
+      if (nova.id) setVagas((prev) => (prev.some((v) => v.id === nova.id) ? prev : [nova, ...prev]));
+      else loadJobs();
     }
   }, [route?.params?.novaVaga]);
 
@@ -24,7 +49,16 @@ const EmpresaVagasScreen = ({ route, navigation }) => {
       {
         text: 'Excluir',
         style: 'destructive',
-        onPress: () => setVagas((prev) => prev.filter((v) => v.id !== id)),
+        onPress: async () => {
+          try {
+            await api.deleteJob(id);
+            setVagas((prev) => prev.filter((v) => String(v.id) !== String(id)));
+            Alert.alert('Sucesso', 'Vaga excluída');
+          } catch (err) {
+            const msg = err?.error || err?.message || 'Erro ao excluir vaga';
+            Alert.alert('Erro', String(msg));
+          }
+        },
       },
     ]);
   };
@@ -34,44 +68,31 @@ const EmpresaVagasScreen = ({ route, navigation }) => {
       <ScrollView contentContainerStyle={styles.inner}>
         <Text style={styles.title}>Vagas da Empresa</Text>
 
-        {vagas.length === 0 ? (
+        {loading ? (
+          <ActivityIndicator size="large" color="#000" />
+        ) : vagas.length === 0 ? (
           <Text style={styles.sub}>Nenhuma vaga disponível.</Text>
         ) : (
           vagas.map((vaga) => (
-            <View key={vaga.id} style={styles.card}>
-              <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'flex-start' }}>
-                <View style={{ flex: 1 }}>
-                  <Text style={styles.cardTitle}>{vaga.cargo || vaga.titulo || 'Vaga'}</Text>
-                  {vaga.descricao ? <Text style={styles.cardText}>{vaga.descricao}</Text> : null}
-                  <Text style={styles.cardMeta}>Escala: {vaga.escala || '-'} • Modelo: {vaga.modelo || '-'}</Text>
-                  <Text style={styles.cardMeta}>Regime: {vaga.regime || '-'}</Text>
-                </View>
-                <TouchableOpacity onPress={() => handleExcluir(vaga.id)} style={{ marginLeft: 12 }}>
-                  <Ionicons name="trash" size={22} color="#c00" />
-                </TouchableOpacity>
-              </View>
-            </View>
+            <VagaCard key={vaga.id} vaga={vaga} onDelete={(id) => handleExcluir(id)} />
           ))
         )}
       </ScrollView>
 
       <View style={styles.bottomMenu}>
-              <TouchableOpacity style={styles.menuItem} onPress={() => navigation.navigate('EmpresaApp')}>
-                <Ionicons name="home" size={24} color="#000" />
-        
-              </TouchableOpacity>
-              <TouchableOpacity style={styles.menuItem} onPress={() => navigation.navigate('AddVaga')}>
-                <Ionicons name="add-circle" size={24} color="#000" />
-           
-              </TouchableOpacity>
-              <TouchableOpacity style={styles.menuItem} onPress={() => navigation.navigate('EmpresaVagas')}>
-                <Ionicons name="book" size={24} color="#000" />
-             
-              </TouchableOpacity>
-              <TouchableOpacity style={styles.menuItem} onPress={() => navigation.navigate('PerfilEmpresa')}>
-                <Ionicons name="person" size={24} color="#000" />
-              </TouchableOpacity>
-            </View>
+        <TouchableOpacity style={styles.menuItem} onPress={() => navigation.navigate('EmpresaApp')}>
+          <Ionicons name="home" size={24} color="#000" />
+        </TouchableOpacity>
+        <TouchableOpacity style={styles.menuItem} onPress={() => navigation.navigate('AddVaga')}>
+          <Ionicons name="add-circle" size={24} color="#000" />
+        </TouchableOpacity>
+        <TouchableOpacity style={styles.menuItem} onPress={() => navigation.navigate('EmpresaVagas')}>
+          <Ionicons name="book" size={24} color="#000" />
+        </TouchableOpacity>
+        <TouchableOpacity style={styles.menuItem} onPress={() => navigation.navigate('PerfilEmpresa')}>
+          <Ionicons name="person" size={24} color="#000" />
+        </TouchableOpacity>
+      </View>
     </SafeAreaView>
   );
 };

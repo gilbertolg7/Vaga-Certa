@@ -8,7 +8,9 @@ import {
   TouchableOpacity,
   StyleSheet,
   StatusBar,
+  Alert,
 } from 'react-native';
+import api from '../services/api';
 
 const CadastroPJScreen = ({ navigation }) => {
   const [email, setEmail] = useState('');
@@ -120,7 +122,26 @@ const CadastroPJScreen = ({ navigation }) => {
     <View style={styles.buttonContainer}>
       <TouchableOpacity
         style={styles.buttonPrimary}
-        onPress={() => navigation.navigate('EmpresaApp')}
+        onPress={async () => {
+          try {
+            if (!email || !password || !companyName) return Alert.alert('Preencha os campos obrigatórios');
+            const payload = {
+              email,
+              password,
+              nome: companyName,
+              cnpj,
+              estado: state,
+              cidade: city,
+              endereco: address,
+            };
+            const res = await api.registerCompany(payload);
+            await api.saveToken(res.token);
+            navigation.reset({ index: 0, routes: [{ name: 'EmpresaApp' }] });
+          } catch (err) {
+            const msg = err?.error || err?.message || 'Erro ao cadastrar empresa';
+            Alert.alert('Erro', String(msg));
+          }
+        }}
       >
         <Text style={styles.buttonPrimaryText}>Cadastrar</Text>
       </TouchableOpacity>

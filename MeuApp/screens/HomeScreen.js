@@ -1,89 +1,43 @@
 
-import React from 'react';
-import { SafeAreaView, View, Text, StyleSheet, FlatList, StatusBar } from 'react-native';
+import React, { useEffect, useState } from 'react';
+import { SafeAreaView, View, Text, StyleSheet, FlatList, StatusBar, ActivityIndicator, Alert } from 'react-native';
 import VagaCard from '../components/VagaCard';
-
-export const VAGAS_DISPONIVEIS = [
-  {
-    id: '1',
-    empresa: 'AutoParts',
-    cargo: 'Contrata-se Atendente de caixa',
-    escala: '6x1 Diurna',
-    requisitos: 'Sem experiência prévia',
-    modelo: 'Presencial',
-    regime: 'CLT',
-    localizacao: 'Rua das Flores, 123 - Centro',
-    descricao: 'Atendimento ao cliente, operação de caixa, organização da loja.',
-  },
-  {
-    id: '2',
-    empresa: 'Suporte Técnico - Teste Telecom',
-    cargo: 'Contrata-se Suporte técnico',
-    escala: '5x2 das 8h até as 18h',
-    requisitos: 'Experiência em Redes',
-    modelo: 'Presencial',
-    regime: 'CLT',
-    localizacao: 'Rua das Flores, 123 - Centro',
-    descricao: 'Atendimento a chamados, manutenção de redes, suporte ao usuário.',
-  },
-  {
-    id: '3',
-    empresa: 'Responsavel de Loja - Mercado Tonhao',
-    cargo: 'Contrata-se Responsavel de Loja',
-    escala: '6x1 Diurna',
-    requisitos: 'Experiência em gestão de pessoas',
-    modelo: 'Presencial',
-    regime: 'CLT',
-    localizacao: 'Rua das Flores, 123 - Centro',
-    descricao: 'Gestão de equipe, controle de estoque, atendimento ao cliente.',
-  },
-  {
-    id: '4',
-    empresa: 'Responsavel de Loja - Mercado Tonhao',
-    cargo: 'Contrata-se Responsavel de Loja',
-    escala: '6x1 Diurna',
-    requisitos: 'Experiência em gestão de pessoas',
-    modelo: 'Presencial',
-    regime: 'CLT',
-    localizacao: 'Rua das Flores, 123 - Centro',
-    descricao: 'Gestão de equipe, controle de estoque, atendimento ao cliente.',
-  },
-    {
-    id: '5',
-    empresa: 'Suporte Técnico - Teste Telecom',
-    cargo: 'Contrata-se Suporte técnico',
-    escala: '5x2 das 8h até as 18h',
-    requisitos: 'Experiência em Redes',
-    modelo: 'Presencial',
-    regime: 'CLT',
-    localizacao: 'Rua das Flores, 123 - Centro',
-    descricao: 'Gestão de equipe, controle de estoque, atendimento ao cliente.',
-  },
-    {
-    id: '6',
-    empresa: 'AutoParts',
-    cargo: 'Contrata-se Atendente de caixa',
-    escala: '6x1 Diurna',
-    requisitos: 'Sem experiência prévia',
-    modelo: 'Presencial',
-    regime: 'CLT',
-    localizacao: 'Rua das Flores, 123 - Centro',
-    descricao: 'Gestão de equipe, controle de estoque, atendimento ao cliente.',
-  },
-];
+import api from '../services/api';
 
 const HomeScreen = () => {
+  const [vagas, setVagas] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  const load = async () => {
+    setLoading(true);
+    try {
+      const res = await api.getJobs();
+      setVagas(res.jobs || []);
+    } catch (err) {
+      const msg = err?.error || err?.message || 'Erro ao buscar vagas';
+      Alert.alert('Erro', String(msg));
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => { load(); }, []);
+
   return (
     <SafeAreaView style={styles.safeArea}>
       <StatusBar barStyle="dark-content" />
       <View style={styles.container}>
         <Text style={styles.headerTitle}>Vagas Disponíveis</Text>
-        <FlatList
-          data={VAGAS_DISPONIVEIS}
-          renderItem={({ item }) => <VagaCard vaga={item} />}
-          keyExtractor={item => item.id}
-          showsVerticalScrollIndicator={false}
-        />
+        {loading ? (
+          <ActivityIndicator size="large" color="#000" />
+        ) : (
+          <FlatList
+            data={vagas}
+            renderItem={({ item }) => <VagaCard vaga={item} titleBold={true} />}
+            keyExtractor={item => String(item.id)}
+            showsVerticalScrollIndicator={false}
+          />
+        )}
       </View>
     </SafeAreaView>
   );

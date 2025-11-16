@@ -1,20 +1,52 @@
 
-import React from 'react';
-import { View, Text, StyleSheet, Image, TouchableOpacity, ScrollView } from 'react-native';
-import { TextInput } from 'react-native';
+import React, { useState, useEffect } from 'react';
+import { View, Text, StyleSheet, Image, TouchableOpacity, ScrollView, Alert, Modal, TextInput } from 'react-native';
+import api from '../services/api';
 import { Ionicons } from '@expo/vector-icons';
-import { FAKE_USERS } from '../components/Usuarios'; 
 
 const PerfilScreen = ({ route, navigation }) => {
 
-  const userId = route?.params?.userId;
+  const [loading, setLoading] = useState(true);
+  const [nome, setNome] = useState('');
+  const [idade, setIdade] = useState('');
+  const [areaAtuante, setAreaAtuante] = useState('');
+  const [experiencia, setExperiencia] = useState('');
+  const [endereco, setEndereco] = useState('');
+  const [avatar, setAvatar] = useState('');
+  const [avatarModalVisible, setAvatarModalVisible] = useState(false);
+  const [tempAvatarUrl, setTempAvatarUrl] = useState('');
 
-  const user = userId ? FAKE_USERS.find(u => u.id === userId) : FAKE_USERS[0];
+  useEffect(() => {
+    let mounted = true;
+    (async () => {
+      try {
+        const res = await api.getProfile();
+        const p = res.profile;
+        if (!mounted) return;
+        setNome(p.nome || '');
+        setIdade(p.idade ? String(p.idade) : '');
+        setAreaAtuante(p.areaAtuante || '');
+        setExperiencia(p.experiencia || '');
+        setEndereco(p.endereco || '');
+        setAvatar(p.avatar || '');
+      } catch (err) {
+        const msg = err?.error || err?.message || 'Erro ao buscar perfil';
+        if (err && (err.error === 'Invalid token' || err.error === 'No authorization header')) {
+          navigation.reset({ index: 0, routes: [{ name: 'SignIn' }] });
+          return;
+        }
+        Alert.alert('Erro', String(msg));
+      } finally {
+        if (mounted) setLoading(false);
+      }
+    })();
+    return () => { mounted = false; };
+  }, []);
 
-  if (!user) {
+  if (loading) {
     return (
       <View style={styles.container}>
-        <Text>Usuário não encontrado.</Text>
+        <Text>Carregando...</Text>
       </View>
     );
   }
@@ -25,38 +57,95 @@ const PerfilScreen = ({ route, navigation }) => {
         <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backButton}>
           <Ionicons name="arrow-back" size={24} color="#000" />
         </TouchableOpacity>
-        <Text style={styles.title}>Perfil</Text>
+        <Text style={styles.title}>{nome || 'Perfil'}</Text>
         <View style={{ width: 40 }} />
       </View>
 
       <View style={styles.avatarContainer}>
-        <Image
-          source={{ uri: user.avatarUrl }}
-          style={styles.avatar}
-        />
+        <TouchableOpacity onPress={() => { setTempAvatarUrl(avatar || ''); setAvatarModalVisible(true); }}>
+          <Image
+            source={avatar ? { uri: avatar } : require('../assets/icon.png')}
+            style={styles.avatar}
+          />
+        </TouchableOpacity>
       </View>
 
       <View style={styles.form}>
         <Text style={styles.label}>Nome:</Text>
-        <TextInput style={styles.input} value={user.nome} editable={false} />
+        <TextInput style={styles.input} value={nome} onChangeText={setNome} />
 
         <Text style={styles.label}>Idade:</Text>
-        <TextInput style={styles.input} value={user.idade} editable={false} />
+        <TextInput style={styles.input} value={idade} onChangeText={setIdade} keyboardType="numeric" />
 
         <Text style={styles.label}>Área Atuante:</Text>
-        <TextInput style={styles.input} value={user.areaAtuante} editable={false} />
+        <TextInput style={styles.input} value={areaAtuante} onChangeText={setAreaAtuante} />
 
         <Text style={styles.label}>Experiência:</Text>
         <TextInput
           style={[styles.input, styles.textArea]}
-          value={user.experiencia}
-          editable={false}
+          value={experiencia}
+          onChangeText={setExperiencia}
           multiline
         />
 
         <Text style={styles.label}>Endereço:</Text>
-        <TextInput style={styles.input} value={user.endereco} editable={false} />
+        <TextInput style={styles.input} value={endereco} onChangeText={setEndereco} />
       </View>
+
+      <TouchableOpacity
+        style={styles.saveButton}
+        onPress={async () => {
+          try {
+            const payload = { nome, idade, endereco, areaAtuante, experiencia };
+            const res = await api.updateProfile(payload);
+            Alert.alert('Sucesso', 'Perfil atualizado');
+          } catch (err) {
+            const msg = err?.error || err?.message || 'Erro ao atualizar';
+            Alert.alert('Erro', String(msg));
+          }
+        }}
+      >
+        <Text style={styles.saveButtonText}>Salvar</Text>
+      </TouchableOpacity>
+
+        <Modal visible={avatarModalVisible} transparent animationType="slide">
+          <View style={{ flex: 1, backgroundColor: 'rgba(0,0,0,0.4)', justifyContent: 'center', padding: 20 }}>
+            <View style={{ backgroundColor: '#fff', borderRadius: 8, padding: 16 }}>
+              <Text style={{ fontWeight: '700', marginBottom: 8 }}>Editar foto de perfil (cole o link)</Text>
+              <TextInput placeholder="https://..." value={tempAvatarUrl} onChangeText={setTempAvatarUrl} style={{ borderWidth: 1, borderColor: '#e6e6e6', padding: 8, borderRadius: 6, marginBottom: 12 }} />
+              <View style={{ flexDirection: 'row', justifyContent: 'flex-end' }}>
+                <TouchableOpacity onPress={() => setAvatarModalVisible(false)} style={{ marginRight: 12 }}>
+                  <Text style={{ color: '#666' }}>Cancelar</Text>
+                </TouchableOpacity>
+                <TouchableOpacity onPress={async () => {
+                  try {
+                    await api.updateProfile({ avatar: tempAvatarUrl });
+                    setAvatar(tempAvatarUrl);
+                    setAvatarModalVisible(false);
+                    Alert.alert('Sucesso', 'Foto atualizada');
+                  } catch (err) {
+                    const msg = err?.error || err?.message || 'Erro ao atualizar foto';
+                    Alert.alert('Erro', String(msg));
+                  }
+                }}>
+                  <Text style={{ color: '#007aff', fontWeight: '700' }}>Salvar</Text>
+                </TouchableOpacity>
+              </View>
+            </View>
+          </View>
+        </Modal>
+
+      <TouchableOpacity
+        style={styles.logoutButton}
+        onPress={async () => {
+          try {
+            await api.logout();
+          } catch (e) {}
+          navigation.reset({ index: 0, routes: [{ name: 'SignIn' }] });
+        }}
+      >
+        <Text style={styles.logoutButtonText}>Sair</Text>
+      </TouchableOpacity>
     </ScrollView>
   );
 };
@@ -113,6 +202,34 @@ const styles = StyleSheet.create({
   textArea: {
     height: 110,
     textAlignVertical: 'top',
+  },
+  logoutButton: {
+    width: '100%',
+    height: 50,
+    backgroundColor: '#ff3b30',
+    borderRadius: 8,
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginTop: 20,
+  },
+  logoutButtonText: {
+    color: '#fff',
+    fontSize: 16,
+    fontWeight: '700',
+  },
+  saveButton: {
+    width: '100%',
+    height: 50,
+    backgroundColor: '#007aff',
+    borderRadius: 8,
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginTop: 8,
+  },
+  saveButtonText: {
+    color: '#fff',
+    fontSize: 16,
+    fontWeight: '700',
   },
 });
 

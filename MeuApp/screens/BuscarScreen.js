@@ -3,21 +3,37 @@
 import React, { useState, useEffect } from 'react';
 import { SafeAreaView, View, Text, StyleSheet, TextInput, FlatList, StatusBar } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
-import VagaCard from '../components/VagaCard'; 
-import { VAGAS_DISPONIVEIS } from '../screens/HomeScreen'; 
+import VagaCard from '../components/VagaCard';
+import api from '../services/api';
 
 const BuscarScreen = () => {
   const [termoBuscar, setTermoBuscar] = useState('');
-  const [vagasFiltradas, setVagasFiltradas] = useState(VAGAS_DISPONIVEIS);
+  const [vagasFiltradas, setVagasFiltradas] = useState([]);
+  const [allVagas, setAllVagas] = useState([]);
+
+  useEffect(() => {
+    let mounted = true;
+    (async () => {
+      try {
+        const res = await api.getJobs();
+        if (!mounted) return;
+        setAllVagas(res.jobs || []);
+        setVagasFiltradas(res.jobs || []);
+      } catch (err) {
+        // ignore here, user will see empty list
+      }
+    })();
+    return () => { mounted = false; };
+  }, []);
 
   const handleSearch = (text) => {
     setTermoBuscar(text);
-    const source = Array.isArray(VAGAS_DISPONIVEIS) ? VAGAS_DISPONIVEIS : [];
+    const source = Array.isArray(allVagas) ? allVagas : [];
     if (text && text.trim().length > 0) {
       const filtro = text.toString().toLowerCase();
       const novasVagas = source.filter(vaga => {
-        const empresa = (vaga?.empresa || '').toString().toLowerCase();
-        const cargo = (vaga?.cargo || '').toString().toLowerCase();
+        const empresa = (vaga?.Company?.nome || vaga?.companyName || vaga?.empresa || vaga?.nome || '').toString().toLowerCase();
+        const cargo = (vaga?.titulo || vaga?.title || vaga?.cargo || '').toString().toLowerCase();
         return empresa.includes(filtro) || cargo.includes(filtro);
       });
       setVagasFiltradas(novasVagas);
@@ -48,7 +64,7 @@ const BuscarScreen = () => {
         <FlatList
           data={vagasFiltradas}
           renderItem={({ item }) => <VagaCard vaga={item} />}
-          keyExtractor={item => item.id}
+          keyExtractor={item => (item.id ? String(item.id) : Math.random().toString())}
           showsVerticalScrollIndicator={false}
           ListEmptyComponent={
             <View style={styles.emptyContainer}>

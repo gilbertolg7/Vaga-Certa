@@ -1,25 +1,38 @@
 
 import React from 'react';
-import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, Image } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
 
-const VagaCard = ({ vaga }) => {
+const VagaCard = ({ vaga, onDelete, titleBold }) => {
   const navigation = useNavigation();
   return (
     <View style={styles.cardContainer}>
       <View style={styles.iconContainer}>
-        <Ionicons name="business" size={32} color="#666" />
+        {(vaga.logo || (vaga.Company && vaga.Company.logo)) ? (
+          <Image source={{ uri: vaga.logo || vaga.Company.logo }} style={styles.logoImage} />
+        ) : (
+          <Ionicons name="business" size={32} color="#666" />
+        )}
       </View>
       <View style={styles.textContainer}>
-        {vaga.empresa ? <Text style={styles.company}>{vaga.empresa}</Text> : null}
-        <Text style={styles.cargo}>{vaga.cargo || vaga.titulo}</Text>
-        <Text style={styles.metaLine}>Escala: {vaga.escala || '-'}</Text>
-        <Text style={styles.metaLine}>Requisitos: {vaga.requisitos || '-'}</Text>
+        {(vaga.empresa || (vaga.Company && vaga.Company.nome) || vaga.nome) ? (
+          <Text style={styles.company}>{vaga.empresa || (vaga.Company && vaga.Company.nome) || vaga.nome}</Text>
+        ) : null}
+        <Text style={[styles.cargo, titleBold && styles.cargoBold]}>{vaga.titulo || vaga.title || vaga.cargo}</Text>
+        <Text style={styles.metaLine}>Escala: {vaga.escala || vaga.scale || '-'}</Text>
+        <Text style={styles.metaLine}>Modelo: {vaga.modelo || vaga.model || '-'}</Text>
+        <Text style={styles.metaLine}>Requisitos: {vaga.requisitos || vaga.requirements || '-'}</Text>
       </View>
-      <TouchableOpacity style={styles.button} onPress={() => navigation.navigate('DetalhesVaga', { vaga })}>
-        <Text style={styles.buttonText}>Acessar</Text>
-      </TouchableOpacity>
+      {onDelete ? (
+        <TouchableOpacity style={styles.deleteButton} onPress={() => onDelete(vaga.id)}>
+          <Ionicons name="trash" size={20} color="#fff" />
+        </TouchableOpacity>
+      ) : (
+        <TouchableOpacity style={styles.button} onPress={() => navigation.navigate('DetalhesVaga', { vaga })}>
+          <Text style={styles.buttonText}>Acessar</Text>
+        </TouchableOpacity>
+      )}
     </View>
   );
 };
@@ -40,7 +53,16 @@ const styles = StyleSheet.create({
     elevation: 3,
   },
   iconContainer: {
-    marginRight: 15,
+    marginRight: 12,
+    width: 48,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  logoImage: {
+    width: 44,
+    height: 44,
+    borderRadius: 8,
+    resizeMode: 'cover',
   },
   textContainer: {
     flex: 1, 
@@ -68,6 +90,18 @@ const styles = StyleSheet.create({
     color: '#fff',
     fontWeight: 'bold',
     fontSize: 14,
+  },
+  deleteButton: {
+    backgroundColor: '#c00',
+    borderRadius: 8,
+    paddingVertical: 10,
+    paddingHorizontal: 12,
+    marginLeft: 10,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  cargoBold: {
+    fontWeight: '800',
   },
 });
 

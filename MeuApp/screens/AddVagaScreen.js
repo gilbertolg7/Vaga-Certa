@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { View, Text, SafeAreaView, StyleSheet, TextInput, TouchableOpacity, Alert, ScrollView } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
+import api from '../services/api';
 
 const AddVagaScreen = ({ navigation }) => {
   const [titulo, setTitulo] = useState('');
@@ -16,19 +17,25 @@ const AddVagaScreen = ({ navigation }) => {
       return;
     }
 
-    const novaVaga = {
-      id: Date.now().toString(),
-      empresa: 'Minha Empresa',
-      cargo: titulo,
+    const payload = {
+      titulo: titulo,
+      descricao: descricao,
       escala: escala,
       modelo: modelo,
       requisitos: requisitos,
       regime: regime,
-      descricao: descricao,
     };
 
-
-    navigation.navigate('EmpresaVagas', { novaVaga });
+    (async () => {
+      try {
+        const res = await api.createJob(payload);
+        Alert.alert('Sucesso', 'Vaga criada');
+        navigation.navigate('EmpresaVagas', { novaVaga: res.job });
+      } catch (err) {
+        const msg = err?.error || err?.message || 'Erro ao criar vaga';
+        Alert.alert('Erro', String(msg));
+      }
+    })();
   };
 
   return (

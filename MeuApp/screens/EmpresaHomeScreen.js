@@ -1,35 +1,54 @@
-import React from 'react';
-import { SafeAreaView, View, Text, StyleSheet, FlatList, StatusBar, TouchableOpacity } from 'react-native';
+import React, { useEffect, useState } from 'react';
+import { SafeAreaView, View, Text, StyleSheet, FlatList, StatusBar, TouchableOpacity, ActivityIndicator, Alert } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import VagaCard from '../components/VagaCard';
-import { VAGAS_DISPONIVEIS } from './HomeScreen';
+import api from '../services/api';
 
 const EmpresaHomeScreen = ({ navigation }) => {
+  const [vagas, setVagas] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  const load = async () => {
+    setLoading(true);
+    try {
+      const res = await api.getJobs();
+      setVagas(res.jobs || []);
+    } catch (err) {
+      const msg = err?.error || err?.message || 'Erro ao buscar vagas';
+      Alert.alert('Erro', String(msg));
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => { load(); }, []);
+
   return (
     <SafeAreaView style={styles.safeArea}>
       <StatusBar barStyle="dark-content" />
       <View style={styles.container}>
         <Text style={styles.headerTitle}>Vagas Disponíveis </Text>
-        <FlatList
-          data={VAGAS_DISPONIVEIS}
-          renderItem={({ item }) => <VagaCard vaga={item} />}
-          keyExtractor={item => item.id}
-          showsVerticalScrollIndicator={false}
-        />
+        {loading ? (
+          <ActivityIndicator size="large" color="#000" />
+        ) : (
+          <FlatList
+            data={vagas}
+            renderItem={({ item }) => <VagaCard vaga={item} titleBold={true} />}
+            keyExtractor={item => String(item.id)}
+            showsVerticalScrollIndicator={false}
+          />
+        )}
       </View>
 
       <View style={styles.bottomMenu}>
         <TouchableOpacity style={styles.menuItem} onPress={() => navigation.navigate('EmpresaApp')}>
           <Ionicons name="home" size={24} color="#000" />
-  
         </TouchableOpacity>
         <TouchableOpacity style={styles.menuItem} onPress={() => navigation.navigate('AddVaga')}>
           <Ionicons name="add-circle" size={24} color="#000" />
-     
         </TouchableOpacity>
         <TouchableOpacity style={styles.menuItem} onPress={() => navigation.navigate('EmpresaVagas')}>
           <Ionicons name="book" size={24} color="#000" />
-       
         </TouchableOpacity>
         <TouchableOpacity style={styles.menuItem} onPress={() => navigation.navigate('PerfilEmpresa')}>
           <Ionicons name="person" size={24} color="#000" />
@@ -65,10 +84,6 @@ const styles = StyleSheet.create({
   },
   menuItem: {
     alignItems: 'center',
-  },
-  menuLabel: {
-    fontSize: 12,
-    marginTop: 4,
   },
 });
 

@@ -8,7 +8,9 @@ import {
   TouchableOpacity,
   StyleSheet,
   StatusBar,
+  Alert,
 } from 'react-native';
+import api from '../services/api';
 
 const CadastroPFScreen = ({ navigation }) => {
 ''
@@ -122,12 +124,24 @@ const CadastroPFScreen = ({ navigation }) => {
         
         {/* Container do Botão */}
         <View style={styles.buttonContainer}>
-              <TouchableOpacity
-              style={styles.buttonPrimary}
-              onPress={() => navigation.navigate('MainApp')}>
-                <Text style={styles.buttonPrimaryText}>Cadastrar</Text>
-              </TouchableOpacity>
-            </View>
+          <TouchableOpacity
+            style={styles.buttonPrimary}
+            onPress={async () => {
+              try {
+                if (!email || !password || !nome) return Alert.alert('Preencha os campos obrigatórios');
+                const payload = { email, password, nome, cpf, idade, estado, cidade, endereco };
+                const res = await api.registerUser(payload);
+                await api.saveToken(res.token);
+                navigation.reset({ index: 0, routes: [{ name: 'MainApp' }] });
+              } catch (err) {
+                const msg = err?.error || err?.message || 'Erro ao cadastrar';
+                Alert.alert('Erro', String(msg));
+              }
+            }}
+          >
+            <Text style={styles.buttonPrimaryText}>Cadastrar</Text>
+          </TouchableOpacity>
+        </View>
 
       </View>
     </SafeAreaView>
