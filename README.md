@@ -23,5 +23,5 @@ __O Projeto Vaga Certa tem como objetivo a criação de um APP Mobile que divulg
 ## Implementação das telas com Persistência de dados e autenticação de usuarios utilizando PostgreSQL
 ## Telas desenvolvidas com base nos protótipos realizando pequenas modificações
 ## Modelo de Banco de dados utilizado (alguns campos estao em ingles no codigo)
-![](/Modelo%20banco%20de%20Dados%20PostgreSQL/esquema-de-vagas-de-emprego_1)</br>
+![](../Modelo%20banco%20de%20Dados%20PostgreSQL/esquema-de-vagas-de-emprego_1.png)</br>
 ## Link de Apresentação: https://youtu.be/rldsJ8GP6K8
