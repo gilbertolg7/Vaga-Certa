@@ -19,7 +19,9 @@ __O Projeto Vaga Certa tem como objetivo a criação de um APP Mobile que divulg
 ![](/images/Cdastro%20vaga%20PJ.png)</br>
 ![](/images/Minhas%20Vagas.png)</br>
 
-## Projeto Mobile Entregra 2
-## Implementação das telas sem regras de negocio, persistencia de dados e nem autenticação de usuários
-## Telas desenvolvidas com base nos protótipos realizando pequenas modificações 
+## Projeto Mobile Entregra 3 Final
+## Implementação das telas com Persistência de dados e autenticação de usuarios utilizando PostgreSQL
+## Telas desenvolvidas com base nos protótipos realizando pequenas modificações
+## Modelo de Banco de dados utilizado (alguns campos estao em ingles no codigo)
+![](/Modelo-banco-de-Dados-PostgreSQL/esquema-de-vagas-de-emprego_1)</br>
 ## Link de Apresentação: https://youtu.be/rldsJ8GP6K8
