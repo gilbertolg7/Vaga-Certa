@@ -76,3 +76,34 @@ Para executar o aplicativo em seu ambiente de desenvolvimento, siga o passo a pa
 ### *Modelo de Banco de Dados (PostgreSQL)**
 
 ![Modelo de Banco de Dados](Modelo%20banco%20de%20Dados%20PostgreSQL/esquema-de-vagas-de-emprego_1.png)
+
+## Tutorial de Uso
+
+## Guia Rápido — Uso Básico (Usuário)
+
+Siga estes passos simples para usar o aplicativo como candidato, navegando pela interface:
+
+- Abrir o app: ao iniciar, você verá a tela de login/entrada.
+- Entrar ou criar conta: escolha entrar com seu e‑mail e senha ou usar a opção de cadastro para criar seu perfil rapidamente (preencha os campos obrigatórios e confirme).
+- Explorar vagas: na tela inicial você verá a lista de vagas disponíveis — role a lista para ver mais anúncios.
+- Buscar vagas: use a barra de busca para filtrar resultados por empresa ou cargo; os resultados aparecem instantaneamente.
+- Ver detalhes: toque em qualquer vaga para abrir a página de detalhes e ler a descrição completa, requisitos e informações da empresa.
+- Editar seu perfil: no menu de perfil, atualize seu nome, idade, área de atuação, experiência, endereço ou foto (cole a URL da imagem) e salve as alterações.
+- Voltar à lista: use o botão de voltar ou os menus inferiores para retornar à lista de vagas a qualquer momento.
+- Sair: use o botão de logout no seu perfil para encerrar a sessão.
+
+Dica: se algo não carregar, verifique sua conexão com a internet; para dispositivos emuladores pode ser necessário ajustar o endereço do servidor nas configurações do app.
+
+## Guia Rápido — Uso Básico (Empresa)
+
+Siga estes passos simples para usar o aplicativo como empresa, navegando pela interface:
+
+- Abrir o app: ao iniciar, faça login com a conta da empresa ou crie uma nova conta usando a opção de cadastro de empresas.
+- Painel da empresa: navegue pelo menu inferior para acessar as áreas principais (início, criar vaga, minhas vagas e perfil).
+- Criar vaga: toque em "Criar Vaga" ou no botão de adicionar, preencha o título e os detalhes e salve a vaga.
+- Visualizar e gerenciar vagas: em "Minhas Vagas" verá a lista de vagas publicadas; use a opção de exclusão (lixeira) para remover vagas e confirme quando solicitado.
+- Editar perfil da empresa: no perfil atualize nome, endereço, descrição e logo (cole a URL da imagem) e salve as alterações.
+- Voltar à lista: use os botões de navegação ou o menu inferior para retornar à lista de vagas a qualquer momento.
+- Sair: use o botão de logout no perfil da empresa para encerrar a sessão.
+
+Dica: se algo não funcionar, verifique a conexão e ajuste o endereço do servidor no app quando estiver usando emulador ou dispositivo físico.
